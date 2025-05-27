@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+         <img src="colorful_logo.png" alt="Cat Logo">
+        <span>Pet Welfare</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="login.html">Login</a></li>
+        <li><a href="signup.html" class="active">Signup</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="form-section">
+      <h2>Create a New Account</h2>
+      <form id="signupForm" action="signup.php" method="POST">
+        <input type="text" name="name" placeholder="Enter full name" required>
+        <input type="email" name="email" placeholder="Enter email" required>
+        <input type="password" name="password" placeholder="Enter password" required minlength="6">
+        <input type="password" name="confirm_password" placeholder="Confirm password" required>
+
+        <button type="submit">Create Account</button>
+      </form>
+      
+      <div class="password-requirements" style="margin-top: 10px; font-size: 0.9em; color: #666;">
+        <p><strong>Password Requirements:</strong></p>
+        <ul style="text-align: left; margin-left: 20px;">
+          <li>At least 6 characters long</li>
+          <li>One uppercase letter</li>
+          <li>One lowercase letter</li>
+          <li>One number</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Pet Welfare & Adoption Centre</p>
+  </footer>
+
+  <script>
+    // Handle form submission with validation
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      const password = document.querySelector('input[name="password"]').value;
+      const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+      
+      if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Passwords do not match!');
+        return;
+      }
+      
+      // Basic password validation
+      if (password.length < 6) {
+        e.preventDefault();
+        alert('Password must be at least 6 characters long!');
+        return;
+      }
+      
+      if (!/[A-Z]/.test(password)) {
+        e.preventDefault();
+        alert('Password must contain at least one uppercase letter!');
+        return;
+      }
+      
+      if (!/[a-z]/.test(password)) {
+        e.preventDefault();
+        alert('Password must contain at least one lowercase letter!');
+        return;
+      }
+      
+      if (!/[0-9]/.test(password)) {
+        e.preventDefault();
+        alert('Password must contain at least one number!');
+        return;
+      }
+    });
+  </script>
+</body>
+</html>

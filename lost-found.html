@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lost & Found</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="scripts.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <img src="colorful_logo.png" alt="Cat Logo" />
+        <span>Pet Welfare</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="home.html">Home</a></li>
+        <li><a href="adopt.html">View & Adopt Pets</a></li>
+        <li><a href="surrender.html">Surrender</a></li>
+        <li><a href="lost-found.html" class="active">Lost & Found</a></li>
+        <li><a href="profile.php">Profile</a></li>
+        <li><a href="feedback.html">Feedback</a></li>
+        <li><a href="donation.html">Donate</a></li>
+        <li><a href="logout.php">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="form-section">
+      <h2>Lost or Found a Pet?</h2>
+      <form action="lost_found.php" method="POST">
+        <input type="hidden" name="csrf_token" id="csrf_token" />
+
+        <input type="text" name="name" placeholder="Your name" maxlength="100" required />
+        <input type="tel" name="contact_no" placeholder="Contact number (e.g., 03001234567)" required />
+        <textarea name="pet_description" placeholder="Pet description (min. 20 characters - breed, color, size, features)" minlength="20" maxlength="1000" required></textarea>
+        <input type="text" name="last_seen" placeholder="Last seen / found location" maxlength="255" required />
+
+        <label for="method">Status</label><br />
+        <select id="method" name="method" required>
+          <option value="">-- Select Status --</option>
+          <option value="lost">Lost</option>
+          <option value="found">Found</option>
+        </select><br /><br />
+
+        <button type="submit">Submit Report</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Pet Welfare & Adoption Centre</p>
+  </footer>
+
+  <script>
+    async function loadCSRFToken() {
+      try {
+        const response = await fetch('get_csrf_token.php');
+        const data = await response.json();
+        document.getElementById('csrf_token').value = data.csrf_token;
+      } catch (error) {
+        console.error('Failed to load CSRF token:', error);
+      }
+    }
+
+    loadCSRFToken();
+  </script>
+</body>
+</html>

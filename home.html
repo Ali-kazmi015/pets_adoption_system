@@ -1,0 +1,65 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Pet Welfare & Adoption Centre</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="scripts.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+        <div class="logo">
+            <img src="colorful_logo.png" alt="Cat Logo">
+            <span>Pet Welfare</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="home.html" class="active">Home</a></li>
+            
+            <li><a href="adopt.html">View & Adopt Pets</a></li>
+            <li><a href="surrender.html">Surrender</a></li>
+            <li><a href="lost-found.html">Lost & Found</a></li>
+            <li><a href="profile.php">Profile</a></li>
+            <li><a href="feedback.html">Feedback</a></li>
+            <li><a href="donation.html">Donate</a></li>
+              
+            
+            <li><a href="logout.php">Logout</a></li>
+        </ul>
+    </nav>
+    </header>
+
+    <main>
+        <section class="home-banner">
+            <h1>Welcome, <?= htmlspecialchars($_SESSION['name']) ?>!</h1>
+            <p>Helping pets find their forever homes with care and compassion.</p>
+        </section>
+
+        <section class="gallery">
+            <h2>Our Rescue Shelters</h2>
+            <div class="gallery-images">
+                <img src="pet_shelters.jpeg" alt="Shelter 1">
+                <img src="cats_shelter.jpeg" alt="Shelter 2">
+                <img src="dogs_shelter.jpeg" alt="Shelter 3">
+            </div>
+        </section>
+
+        <section class="about-project">
+            <h2>About This Rescue System</h2>
+            <p>
+Pet Welfare & Adoption Centre is dedicated to rescuing, caring for, and rehoming stray, abandoned, and surrendered animals. Our mission is to connect loving homes with pets in need while promoting responsible pet ownership and animal welfare.
+
+We provide shelter, medical care, and adoption services for pets of all types and ages. Our team works to ensure every animal gets a second chance at a happy, healthy life. We also support owners who can no longer care for their pets, offer a Lost & Found platform, and encourage community involvement through donations and volunteering.
+
+Join us in making a difference—because every pet deserves love, care, and a forever home.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Pet Welfare & Adoption Centre</p>
+    </footer>
+</body>
+</html>

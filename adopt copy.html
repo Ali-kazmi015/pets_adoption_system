@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Available Pets - Adopt a Pet</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Minimal inline styles for adopt form modal */
+    #adoptFormContainer {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border: 2px solid #ccc;
+      padding: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+      max-width: 400px;
+      width: 90%;
+    }
+    #adoptFormContainer.active {
+      display: block;
+    }
+    #adoptFormContainer button.close {
+      float: right;
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .pet-card {
+      display: inline-block;
+      margin: 10px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      width: 180px;
+      text-align: center;
+    }
+    .pet-card img {
+      max-width: 100%;
+      height: auto;
+    }
+    .pet-card button.adopt-btn {
+      margin-top: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    .navbar {
+      background-color: #f8f8f8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      border-bottom: 1px solid #ddd;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+    .logo img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 15px;
+      margin: 0;
+      padding: 0;
+    }
+    .nav-links li a {
+      text-decoration: none;
+      color: #333;
+    }
+    .nav-links li a.active {
+      font-weight: bold;
+      color: #2e8b57;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <img src="colorful_logo.png" alt="Cat Logo" />
+        <span>Pet Welfare</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="home.html">Home</a></li>
+        <li><a href="adopt.html" class="active">View & Adopt Pets</a></li>
+        <li><a href="surrender.html">Surrender</a></li>
+        <li><a href="lost-found.html">Lost & Found</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="feedback.html">Feedback</a></li>
+        <li><a href="donation.html">Donate</a></li>
+        <li><a href="logout.php">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="pets">
+      <h2 style="text-align:center;">Pets Available for Adoption</h2>
+      <div id="petGallery" class="pet-gallery"></div>
+    </section>
+
+    <!-- Hidden adoption form modal -->
+    <section id="adoptFormContainer">
+      <button class="close" onclick="closeAdoptForm()">X</button>
+      <h3>Adopt a Pet</h3>
+      <form id="adoptionForm" method="POST" action="adopt_submit.php">
+        <input type="hidden" id="petId" name="petId" />
+        <label for="userEmail">Your Email:</label>
+        <input type="email" id="userEmail" name="userEmail" required />
+        <label for="reason">Why do you want to adopt?</label>
+        <textarea id="reason" name="reason" rows="4" required></textarea>
+        <button type="submit">Submit Request</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p style="text-align:center;">&copy; 2025 Pet Welfare & Adoption Centre</p>
+  </footer>
+
+  <script>
+    const petGallery = document.getElementById('petGallery');
+    const adoptFormContainer = document.getElementById('adoptFormContainer');
+    const petIdInput = document.getElementById('petId');
+    const adoptionForm = document.getElementById('adoptionForm');
+
+    function showPets() {
+      fetch('get_pets.php')
+        .then(response => response.json())
+        .then(pets => {
+          petGallery.innerHTML = '';
+          pets.forEach(pet => {
+            const petDiv = document.createElement('div');
+            petDiv.className = 'pet-card';
+            petDiv.innerHTML = `
+              <img src="${pet.image}" alt="${pet.name}" />
+              <h4>${pet.name}</h4>
+              <p>Species: ${pet.species}</p>
+              <p>Age: ${pet.age}</p>
+              <p>${pet.description}</p>
+              <button class="adopt-btn" onclick="openAdoptForm('${pet.name}')">Adopt</button>
+            `;
+            petGallery.appendChild(petDiv);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching pets:', error);
+        });
+    }
+
+    function openAdoptForm(petName) {
+      petIdInput.value = petName;
+      adoptFormContainer.classList.add('active');
+    }
+
+    function closeAdoptForm() {
+      adoptFormContainer.classList.remove('active');
+      adoptionForm.reset();
+    }
+
+    showPets();
+  </script>
+</body>
+</html>

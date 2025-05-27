@@ -1,0 +1,370 @@
+-- =====================================================
+-- Pet Adoption System Database Schema
+-- =====================================================
+
+-- Drop database if exists and create fresh
+DROP DATABASE IF EXISTS pets_adoptions_database;
+CREATE DATABASE pets_adoptions_database CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE pets_adoptions_database;
+
+-- =====================================================
+-- 1. USERS TABLE
+-- =====================================================
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('user', 'admin') DEFAULT 'user',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_email (email),
+    INDEX idx_role (role)
+);
+
+-- =====================================================
+-- 2. PETS TABLE (Available for adoption)
+-- =====================================================
+CREATE TABLE pets (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    species VARCHAR(50) NOT NULL,
+    age DECIMAL(4,1) NOT NULL,
+    description TEXT,
+    image VARCHAR(255),
+    is_adopted TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_species (species),
+    INDEX idx_is_adopted (is_adopted),
+    INDEX idx_created_at (created_at)
+);
+
+-- =====================================================
+-- 3. SURRENDER REQUESTS TABLE
+-- =====================================================
+CREATE TABLE surrender_requests (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    pet_name VARCHAR(100) NOT NULL,
+    species VARCHAR(50) NOT NULL,
+    age DECIMAL(4,1) NOT NULL,
+    description TEXT,
+    user_email VARCHAR(100) NOT NULL,
+    image_path VARCHAR(255),
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    processed_at TIMESTAMP NULL,
+    processed_by INT NULL,
+    
+    INDEX idx_user_email (user_email),
+    INDEX idx_status (status),
+    INDEX idx_submitted_at (submitted_at),
+    FOREIGN KEY (processed_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- =====================================================
+-- 4. ADOPTION REQUESTS TABLE
+-- =====================================================
+CREATE TABLE adoption_requests (
+    request_id INT PRIMARY KEY AUTO_INCREMENT,
+    pet_id INT NOT NULL,
+    user_email VARCHAR(100) NOT NULL,
+    reason TEXT,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    processed_at TIMESTAMP NULL,
+    processed_by INT NULL,
+    
+    INDEX idx_pet_id (pet_id),
+    INDEX idx_user_email (user_email),
+    INDEX idx_status (status),
+    INDEX idx_created_at (created_at),
+    FOREIGN KEY (pet_id) REFERENCES pets(id) ON DELETE CASCADE,
+    FOREIGN KEY (processed_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- =====================================================
+-- 5. DONATIONS TABLE
+-- =====================================================
+CREATE TABLE donations (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    donor_name VARCHAR(100) NOT NULL,
+    donor_email VARCHAR(100) NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    payment_method VARCHAR(50),
+    acc_no VARCHAR(100),
+    status ENUM('pending', 'completed', 'failed') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    INDEX idx_donor_email (donor_email),
+    INDEX idx_status (status),
+    INDEX idx_created_at (created_at)
+);
+
+-- =====================================================
+-- 6. FEEDBACK TABLE
+-- =====================================================
+CREATE TABLE feedback (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    comments TEXT,
+    status ENUM('new', 'read', 'responded') DEFAULT 'new',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    INDEX idx_email (email),
+    INDEX idx_status (status),
+    INDEX idx_created_at (created_at)
+);
+
+-- =====================================================
+-- 7. LOST & FOUND REPORTS TABLE
+-- =====================================================
+CREATE TABLE lost_found_reports (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    reporter_name VARCHAR(100) NOT NULL,
+    contact_info VARCHAR(100) NOT NULL,
+    pet_description TEXT,
+    location VARCHAR(255),
+    status ENUM('lost', 'found', 'resolved') NOT NULL,
+    is_active TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMP NULL,
+    
+    INDEX idx_status (status),
+    INDEX idx_is_active (is_active),
+    INDEX idx_created_at (created_at)
+);
+
+-- =====================================================
+-- 8. PROFILE TABLE
+-- =====================================================
+CREATE TABLE profile (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_user_id (user_id),
+    INDEX idx_email (email),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- =====================================================
+-- 9. ADMIN LOGS TABLE (for tracking admin actions)
+-- =====================================================
+CREATE TABLE admin_logs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    admin_id INT NOT NULL,
+    action VARCHAR(100) NOT NULL,
+    target_type ENUM('adoption_request', 'surrender_request', 'user', 'pet') NOT NULL,
+    target_id INT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    INDEX idx_admin_id (admin_id),
+    INDEX idx_action (action),
+    INDEX idx_target_type (target_type),
+    INDEX idx_created_at (created_at),
+    FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- =====================================================
+-- SAMPLE DATA FOR TESTING
+-- =====================================================
+
+-- Insert sample admin user (password: admin123)
+INSERT INTO users (name, email, password, role) VALUES 
+('Admin User', 'admin@petwelfare.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+
+-- Insert sample regular user (password: user123)
+INSERT INTO users (name, email, password, role) VALUES 
+('John Doe', 'john@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user');
+
+-- Insert sample pets
+INSERT INTO pets (name, species, age, description, image, is_adopted) VALUES 
+('Buddy', 'Dog', 2.5, 'Friendly golden retriever, great with kids', 'uploads/buddy.jpg', 0),
+('Whiskers', 'Cat', 1.0, 'Playful kitten, loves to explore', 'uploads/whiskers.jpg', 0),
+('Max', 'Dog', 4.0, 'Calm and loyal companion', 'uploads/max.jpg', 0);
+
+-- Insert sample surrender request
+INSERT INTO surrender_requests (pet_name, species, age, description, user_email, image_path, status) VALUES 
+('Luna', 'Cat', 3.0, 'Moving to new apartment, cannot keep pets', 'john@example.com', 'uploads/luna.jpg', 'Pending');
+
+-- Insert sample adoption request
+INSERT INTO adoption_requests (pet_id, user_email, reason, status) VALUES 
+(1, 'john@example.com', 'I have experience with dogs and a big yard for the pet to play', 'pending');
+
+-- =====================================================
+-- VIEWS FOR EASIER DATA ACCESS
+-- =====================================================
+
+-- View for adoption requests with pet details
+CREATE VIEW adoption_requests_with_pets AS
+SELECT 
+    ar.request_id,
+    ar.user_email,
+    ar.reason,
+    ar.status,
+    ar.created_at,
+    ar.processed_at,
+    p.id as pet_id,
+    p.name as pet_name,
+    p.species,
+    p.age,
+    p.description as pet_description,
+    p.image as pet_image
+FROM adoption_requests ar
+LEFT JOIN pets p ON ar.pet_id = p.id;
+
+-- View for surrender requests summary
+CREATE VIEW surrender_requests_summary AS
+SELECT 
+    status,
+    COUNT(*) as count,
+    AVG(age) as avg_age
+FROM surrender_requests 
+GROUP BY status;
+
+-- View for pets available for adoption
+CREATE VIEW available_pets AS
+SELECT 
+    id,
+    name,
+    species,
+    age,
+    description,
+    image,
+    created_at
+FROM pets 
+WHERE is_adopted = 0
+ORDER BY created_at DESC;
+
+-- =====================================================
+-- STORED PROCEDURES FOR COMMON OPERATIONS
+-- =====================================================
+
+DELIMITER //
+
+-- Procedure to approve surrender request
+CREATE PROCEDURE ApproveSurrenderRequest(
+    IN request_id INT,
+    IN admin_id INT
+)
+BEGIN
+    DECLARE pet_name_var VARCHAR(100);
+    DECLARE species_var VARCHAR(50);
+    DECLARE age_var DECIMAL(4,1);
+    DECLARE description_var TEXT;
+    DECLARE image_path_var VARCHAR(255);
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+    
+    START TRANSACTION;
+    
+    -- Get surrender request details
+    SELECT pet_name, species, age, description, image_path
+    INTO pet_name_var, species_var, age_var, description_var, image_path_var
+    FROM surrender_requests 
+    WHERE id = request_id AND status = 'Pending';
+    
+    -- Insert into pets table
+    INSERT INTO pets (name, species, age, description, image, is_adopted)
+    VALUES (pet_name_var, species_var, age_var, description_var, image_path_var, 0);
+    
+    -- Update surrender request status
+    UPDATE surrender_requests 
+    SET status = 'Approved', processed_at = NOW(), processed_by = admin_id
+    WHERE id = request_id;
+    
+    -- Log admin action
+    INSERT INTO admin_logs (admin_id, action, target_type, target_id, description)
+    VALUES (admin_id, 'approve_surrender', 'surrender_request', request_id, 
+            CONCAT('Approved surrender request for pet: ', pet_name_var));
+    
+    COMMIT;
+END //
+
+-- Procedure to approve adoption request
+CREATE PROCEDURE ApproveAdoptionRequest(
+    IN request_id INT,
+    IN admin_id INT
+)
+BEGIN
+    DECLARE pet_id_var INT;
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+    
+    START TRANSACTION;
+    
+    -- Get pet ID from adoption request
+    SELECT pet_id INTO pet_id_var
+    FROM adoption_requests 
+    WHERE request_id = request_id AND status = 'pending';
+    
+    -- Mark pet as adopted
+    UPDATE pets SET is_adopted = 1 WHERE id = pet_id_var;
+    
+    -- Update adoption request status
+    UPDATE adoption_requests 
+    SET status = 'approved', processed_at = NOW(), processed_by = admin_id
+    WHERE request_id = request_id;
+    
+    -- Log admin action
+    INSERT INTO admin_logs (admin_id, action, target_type, target_id, description)
+    VALUES (admin_id, 'approve_adoption', 'adoption_request', request_id, 
+            CONCAT('Approved adoption request for pet ID: ', pet_id_var));
+    
+    COMMIT;
+END //
+
+DELIMITER ;
+
+-- =====================================================
+-- TRIGGERS FOR DATA INTEGRITY
+-- =====================================================
+
+-- Trigger to prevent multiple adoptions of same pet
+DELIMITER //
+CREATE TRIGGER prevent_multiple_adoptions
+    BEFORE INSERT ON adoption_requests
+    FOR EACH ROW
+BEGIN
+    DECLARE pet_adopted INT DEFAULT 0;
+    
+    SELECT is_adopted INTO pet_adopted 
+    FROM pets 
+    WHERE id = NEW.pet_id;
+    
+    IF pet_adopted = 1 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Cannot create adoption request for already adopted pet';
+    END IF;
+END //
+DELIMITER ;
+
+-- =====================================================
+-- FINAL SETUP COMMANDS
+-- =====================================================
+
+-- Create uploads directory structure (you'll need to create these manually)
+-- uploads/
+-- uploads/pets/
+-- uploads/surrenders/
+-- uploads/temp/
+
+SHOW TABLES;

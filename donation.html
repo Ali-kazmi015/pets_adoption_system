@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Donate - Pet Welfare</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <img src="colorful_logo.png" alt="Cat Logo">
+                <span>Pet Welfare</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="home.html">Home</a></li>
+                <li><a href="adopt.html">View & Adopt Pets</a></li>
+                <li><a href="surrender.html">Surrender</a></li>
+                <li><a href="lost-found.html">Lost & Found</a></li>
+                <li><a href="profile.php">Profile</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+                <li><a href="donation.html" class="active">Donate</a></li>
+                <li><a href="logout.php">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Support Us by Donating</h2>
+        <form action="donation.php" method="POST">
+            <!-- CSRF Token -->
+            <input type="hidden" name="csrf_token" id="csrf_token">
+            
+            <label for="name">Full Name:</label><br>
+            <input type="text" id="name" name="name" maxlength="100" required><br><br>
+
+            <label for="email">Email Address:</label><br>
+            <input type="email" id="email" name="email" required><br><br>
+
+            <label for="amount">Donation Amount (PKR):</label><br>
+            <input type="number" id="amount" name="amount" min="100" max="1000000" step="0.01" required><br><br>
+
+            <label for="method">Payment Method:</label><br>
+            <select id="method" name="method" required>
+                <option value="">-- Select Payment Method --</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Easypaisa">Easypaisa</option>
+                <option value="JazzCash">JazzCash</option>
+                <option value="Credit Card">Credit Card</option>
+            </select><br><br>
+
+            <label for="acc_number">Account Number:</label><br>
+            <input type="text" id="acc_number" name="acc_number" maxlength="100" required placeholder="Enter your account number"><br><br>
+
+            <button type="submit">Donate Now</button>
+        </form>
+    </div>
+
+    <script>
+        async function loadCSRFToken() {
+            try {
+                const response = await fetch('get_csrf_token.php');
+                const data = await response.json();
+                document.getElementById('csrf_token').value = data.csrf_token;
+            } catch (error) {
+                console.error('Failed to load CSRF token:', error);
+            }
+        }
+
+        // Call this when page loads
+        loadCSRFToken();
+    </script>
+</body>
+</html>
